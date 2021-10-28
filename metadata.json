@@ -1,0 +1,29 @@
+{
+    "name": "silverstripe-ss_logrhythm",
+    "version": "1.0.0",
+    "author": "SilverStripe Ltd",
+    "summary": "Module to manage install and configuration of LogRhythm (provided by Advantage) and configuration of rsyslogd for clients",
+    "license": "BSD-3-Clause",
+    "source": "https://github.com/silverstripeltd/puppet-ss_logrhythm",
+    "project_page": "https://github.com/silverstripeltd/puppet-ss_logrhythm",
+    "dependencies": [
+        {
+            "name": "silverstripe-ss_auditd",
+            "version_requirement": "master"
+        }
+    ],
+    "operatingsystem_support": [
+        {
+            "operatingsystem": "Debian",
+            "operatingsystemrelease": [
+                "10"
+            ]
+        }
+    ],
+    "tags": [
+        "security",
+        "siem",
+        "logrhythm"
+    ]
+  }
+  

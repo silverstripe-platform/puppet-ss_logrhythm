@@ -1,0 +1,5 @@
+# File managed by puppet
+
+# Enable UDP listener for Rsyslog
+module(load="imudp")
+input(type="imudp" port="514")
