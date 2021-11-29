@@ -1,6 +1,12 @@
 # Setup LogRhythm agent
 # Install and configure packages and assume firewall allows connections
 class ss_logrhythm::agent inherits ss_logrhythm {
+  # Disable Rsyslog as Logrhythm includes own syslog server
+  service { 'rsyslog':
+    ensure => stopped,
+    enable => false,
+  }
+
   # Download LogRhythm package
   if $ss_logrhythm::https_proxy {
     $proxy_environment = ["https_proxy=${ss_logrhythm::https_proxy}"]
@@ -37,16 +43,5 @@ class ss_logrhythm::agent inherits ss_logrhythm {
     enable    => true,
     subscribe => File['scsm.ini'],
   }
-
-  # Ensure rsyslog configured to listen on UDP 514
-	# Setup rsyslog.configuration
-	file { '/etc/rsyslog.d/logrhythm_agent.conf':
-		ensure  => present,
-		owner   => root,
-		group   => root,
-		mode    => '0644',
-		content => template('ss_logrhythm/logrhythm_agent.conf.erb'),
-		notify => Service['rsyslog'],
-	}
 
 }

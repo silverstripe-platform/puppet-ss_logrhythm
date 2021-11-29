@@ -10,14 +10,12 @@ class ss_logrhythm (
 ){
   include ss_auditd
 
+  # Server will only be agent or client, not both
   if $enabled {
     if $agent_url != '' and $agent_mediator != '' {
       # Agent install
       class {'ss_logrhythm::agent':}
-    }
-
-    # Agent will not be configured as client
-    if $agent_ip != '' {
+    } elsif $agent_ip != '' {
         # Client setup
         class {'ss_logrhythm::client':}
     }
