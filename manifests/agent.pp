@@ -32,11 +32,13 @@ class ss_logrhythm::agent inherits ss_logrhythm {
     provider => dpkg,
     source   => "/usr/src/${agent_package}"
   }-> file { 'scsm.ini':
+    ensure  => 'present',
+    replace => 'no',
     path    => '/opt/logrhythm/scsm/config/scsm.ini',
     content => template('ss_logrhythm/scsm.ini.erb'),
     owner   => root,
     group   => root,
-    mode    => '0644',
+    mode    => '0666',
     require => Package['scsm'],
   }-> service {'scsm':
     ensure    => running,
