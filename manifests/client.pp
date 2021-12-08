@@ -9,9 +9,4 @@ class ss_logrhythm::client inherits ss_logrhythm {
     mode    => '0644',
     notify  => Service['rsyslog'],
   }
-
-  service { 'rsyslog':
-    ensure => stopped,
-    enable => false,
-  }
 }

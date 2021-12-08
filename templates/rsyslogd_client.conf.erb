@@ -1,50 +1,83 @@
 # File managed by puppet
 #
 # For help with rules see
-#     https://www.rsyslog.com/doc/v8-stable/configuration/filters.html
-#     https://www.rsyslog.com/doc/master/configuration/properties.html
-#     https://www.rsyslog.com/doc/master/rainerscript/control_structures.html#if-else-if-else
-#     https://wiki.archlinux.org/title/rsyslog (syslog facilities and priorities)
-#     https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html
+#         https://www.rsyslog.com/doc/v8-stable/configuration/filters.html
+#         https://www.rsyslog.com/doc/master/configuration/properties.html
+#         https://www.rsyslog.com/doc/master/rainerscript/control_structures.html#if-else-if-else
+#         https://wiki.archlinux.org/title/rsyslog (syslog facilities and priorities)
+#         https://www.rsyslog.com/doc/v8-stable/rainerscript/index.html
 #
 # To test config use: rsyslogd -N1
 
 # All emerg, alert, crit
 if ($syslogseverity == '0' or $syslogseverity == '1' or $syslogseverity == '2') then {
-  @<%= @agent_ip %>
-# Mysql audit logs - send to auth so place before
-} else if ($syslogtag == 'mysql-server_auditing') then {
-  if ($rawmsg contains 'CONNECT') then {
-    continue
-  } else if ($rawmsg contains 'SELECT') then {
-    continue
-  } else {
     @<%= @agent_ip %>
-  }
+}
+
+# Apache logs
+else if ($syslogtag == 'apache') then {
+    @<%= @agent_ip %>
+}
+
+# Mysql audit logs - send to auth so place before
+else if ($syslogtag == 'mysql-server_auditing') then {
+    if ($rawmsg contains 'CONNECT') then {
+        continue
+    } else if ($rawmsg contains 'SELECT') then {
+        continue
+    } else {
+        @<%= @agent_ip %>
+    }
+}
+
 # All auth, authpriv and kernel messages
-} else if ($syslogfacility == '0' or $syslogfacility == '4' or $syslogfacility == '10') then {
-  @<%= @agent_ip %>
+else if ($syslogfacility == '0' or $syslogfacility == '4' or $syslogfacility == '10') then {
+    @<%= @agent_ip %>
+}
+
 # Auditd config
 # -------------
 # Ignore commvault - is noisy and Revera monitor status
-} else if ($syslogtag == 'audit') then {
-  if ($rawmsg contains_i 'commvault') then {
-    continue
-  # Ignore LOGIN as duplicated in auth logs
-  } else if ($rawmsg contains 'type=LOGIN') then {
-    continue
-  # Otherwise send auditd
-  } else {
+else if ($syslogtag == 'audit') then {
+    if ($rawmsg contains_i 'commvault') then {
+        continue
+    # Ignore LOGIN as duplicated in auth logs
+    } else if ($rawmsg contains 'type=LOGIN') then {
+        continue
+    # Ignore Auditd Cron
+    } else if ($rawmsg contains '/usr/sbin/cron') then {
+        continue
+    # Otherwise send auditd
+    } else {
+        @<%= @agent_ip %>
+    }
+}
+
+# Sudo
+else if ($programname == 'sudo') then {
     @<%= @agent_ip %>
-  }
+}
+
 # Cron
-} else if ($syslogtag == 'CRON') then {
-  if ($rawmsg contains 'INSERT INTO rep_tick VALUES') then {
-    continue
-  } else {
+else if ($programname == 'CRON') then {
+    # Ignore rep_tick
+    if ($rawmsg contains 'rep_tick') then {
+        continue
+    # Ignore graphite 
+    } else if ($rawmsg contains '/opt/graphite/scripts') then {
+        continue
+    # Ignore csync 
+    } else if ($rawmsg contains '/usr/sbin/csync2_sync') then {
+        continue
+    # Ignore queuedjobs
+    } else if ($rawmsg contains '/usr/local/bin/queuedjobs.sh') then {
+        continue
+    } else {
+        @<%= @agent_ip %>
+    }
+}
+
+# Mail logs
+else if ($syslogfacility-text == 'mail') then {
     @<%= @agent_ip %>
-  }
-# Apache logs
-} else if ($syslogtag == 'apache') then {
-  @<%= @agent_ip %>
 }
