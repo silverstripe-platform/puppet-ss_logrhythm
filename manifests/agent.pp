@@ -1,49 +1,34 @@
 # Setup LogRhythm agent
 # Install and configure packages and assume firewall allows connections
-class ss_logrhythm::agent inherits ss_logrhythm {
-  # Disable Rsyslog as Logrhythm includes own syslog server
-  service { 'rsyslog':
-    ensure => stopped,
-    enable => false,
-  }
+# Packages will be downloaded from s3://ss-packages/logrhythm (publicly accessible)
+class ss_logrhythm::agent (
+  Variant[Stdlib::HTTPSUrl,Stdlib::HttpUrl] $package_url, # Agent public accessible .deb pachake URL (eg. https://s3-ap-southeast-2.amazonaws.com/ss-packages/logrhythm/scsm-x.x.x.xxxx-xx_amd64.deb)
+  Stdlib::Host $agent_mediator,      # Mediator hostname our platform agent server(s) send requests (eg. Advantage)
+) inherits ss_logrhythm {
 
-  # Download LogRhythm package
-  if $ss_logrhythm::https_proxy {
-    $proxy_environment = ["https_proxy=${ss_logrhythm::https_proxy}"]
-  } else {
-    $proxy_environment = []
-  }
-
-  # Package name is the last part of agent URL
-  $agent_package = $ss_logrhythm::agent_url.split('/')[-1]
-  notice("LogRhythm Agent Setup: ${agent_package}")
-
-  file { ['/opt/logrhythm', '/opt/logrhythm/scsm', '/opt/logrhythm/scsm/config']:
-    ensure => directory,
-    owner  => root,
-    group  => root,
-  }-> exec { 'download':
-    command     => "curl -s -f ${ss_logrhythm::agent_url} -o /usr/src/${agent_package}",
-    path        => '/usr/bin:/usr/sbin:/bin',
-    environment => $proxy_environment,
-    onlyif      => "test ! -f /usr/src/${agent_package}",
-  }-> package { 'scsm':
+  # Install SCSM
+  package { 'scsm':
     ensure   => installed,
     provider => dpkg,
-    source   => "/usr/src/${agent_package}"
-  }-> file { 'scsm.ini':
+    source   => "${$package_url}"
+  }
+  
+  # Configure SCSM with default settings
+  file { '/opt/logrhythm/scsm/config/scsm.ini':
     ensure  => 'present',
     replace => 'no',
-    path    => '/opt/logrhythm/scsm/config/scsm.ini',
     content => template('ss_logrhythm/scsm.ini.erb'),
     owner   => root,
     group   => root,
     mode    => '0666',
     require => Package['scsm'],
-  }-> service {'scsm':
+  }
+  
+  # Ensure SCSM service is running
+  service {'scsm':
     ensure    => running,
     enable    => true,
-    subscribe => File['scsm.ini'],
+    subscribe => File['/opt/logrhythm/scsm/config/scsm.ini'],
   }
-
+  
 }
