@@ -4,10 +4,8 @@
 # SCSM config for connection to Advantage
 
 [Mediator 1]
-<%= @logrhythm_agent_mediator %>
-
 # IP address or DNS name of the Mediator this Agent will connect to.
-Host=<%= @logrhythm_agent_mediator %>
+Host=<%= @agent_mediator %>
 
 # Port number the Mediator is listening on
 ServerPort=443
@@ -25,3 +23,9 @@ ClientAddress=0
 
 # Port number to use for transmitting messages to the Mediator.
 ClientPort=3333
+
+# Default SyslogServer Settings
+[SyslogServer]
+SyslogServer=True
+SyslogUDPPort=5514
+SyslogTCPPort=5514
