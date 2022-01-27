@@ -15,47 +15,45 @@ if ($syslogseverity == '0' or $syslogseverity == '1' or $syslogseverity == '2') 
 }
 
 # Apache logs
-else if ($syslogtag == 'apache') then {
+else if ($programname == 'apache') then {
     @<%= @agent_ip %>:<%= @agent_port %>
 }
 
-# Mysql audit logs - send to auth so place before
-else if ($syslogtag == 'mysql-server_auditing') then {
-    if ($rawmsg contains 'CONNECT') then {
+# Auth/Authpriv
+else if ($syslogfacility == '4' or $syslogfacility == '10') then {
+    # Mysql audit logs - send to auth so place before
+    if ($programname == 'mysql-server_auditing') then {
+        if ($rawmsg contains 'CONNECT') then {
+            continue
+        } else if ($rawmsg contains 'SELECT') then {
+            continue
+        } else {
+            @<%= @agent_ip %>:<%= @agent_port %>
+        }
+    } else if ($programname == 'CRON') then {
         continue
-    } else if ($rawmsg contains 'SELECT') then {
-        continue
-    } else {
+    }
+    else {
         @<%= @agent_ip %>:<%= @agent_port %>
     }
 }
 
-# All auth, authpriv and kernel messages
-else if ($syslogfacility == '0' or $syslogfacility == '4' or $syslogfacility == '10') then {
+# All kernel messages
+else if ($syslogfacility == '0') then {
     @<%= @agent_ip %>:<%= @agent_port %>
 }
 
-# Auditd config
-# -------------
-# Ignore commvault - is noisy and Revera monitor status
-else if ($syslogtag == 'audit') then {
-    if ($rawmsg contains_i 'commvault') then {
+# Auditd logging USER events
+else if ($programname == 'audit') then {
+    # Ignore 'vendor/bin/sake dev/tasks/ProcessJobQueueTask' executions
+    # Hash can be expanded via xdd for command
+    if ($rawmsg contains '76656E646F722F62696E2F73616B65206465762F7461736B732F50726F636573734A6F6251756575655461736B') then {
         continue
-    # Ignore LOGIN as duplicated in auth logs
-    } else if ($rawmsg contains 'type=LOGIN') then {
-        continue
-    # Ignore Auditd Cron
-    } else if ($rawmsg contains '/usr/sbin/cron') then {
-        continue
-    # Otherwise send auditd
-    } else {
+    } else if ($rawmsg contains 'type=USER_') then {
+        @<%= @agent_ip %>:<%= @agent_port %>
+    } else if ($rawmsg contains 'type=PATH' and ($rawmsg contains '/etc/passwd' or $rawmsg contains '/etc/shadow')) then {
         @<%= @agent_ip %>:<%= @agent_port %>
     }
-}
-
-# Sudo
-else if ($programname == 'sudo') then {
-    @<%= @agent_ip %>:<%= @agent_port %>
 }
 
 # Cron
@@ -63,10 +61,10 @@ else if ($programname == 'CRON') then {
     # Ignore rep_tick
     if ($rawmsg contains 'rep_tick') then {
         continue
-    # Ignore graphite 
+    # Ignore graphite
     } else if ($rawmsg contains '/opt/graphite/scripts') then {
         continue
-    # Ignore csync 
+    # Ignore csync
     } else if ($rawmsg contains '/usr/sbin/csync2_sync') then {
         continue
     # Ignore queuedjobs
