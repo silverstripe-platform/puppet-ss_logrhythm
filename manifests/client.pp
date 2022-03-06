@@ -7,6 +7,7 @@ class ss_logrhythm::client (
 ) inherits ss_logrhythm {
   if $enabled == true {
     $logrhythm_agent_ensure = present
+    $rsyslog_delivery = "@${agent_ip}:${agent_port}"
   } else {
     $logrhythm_agent_ensure = absent
   }

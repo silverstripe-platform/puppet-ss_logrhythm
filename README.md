@@ -16,3 +16,9 @@ It is assumed that any firewall changes/ security group changes are managed else
 ## Client
 
 Set up rsyslogd to also forward syslog logs of interest to the agent server.
+
+## Kinesis Package
+
+Included in a script `make-debian` which can be used to create a debian package from the compiled application.
+
+[Download the source](https://github.com/awslabs/amazon-kinesis-agent.git) and run `./setup --build` to compile. Further instructions are in the script.
