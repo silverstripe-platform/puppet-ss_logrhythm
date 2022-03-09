@@ -5,6 +5,8 @@ class ss_logrhythm::kinesis (
   Variant[Stdlib::HTTPSUrl,Stdlib::HttpUrl] $package_url = '', # eg. https://s3-ap-southeast-2.amazonaws.com/ss-packages/logrhythm/aws-kinesis-agent_0.9-Ubuntu_amd64.deb
 ) inherits ss_logrhythm {
 
+  require java
+
   # Set up rsyslog configuration
   if $enabled == true {
     $logrhythm_agent_ensure = present
@@ -22,24 +24,6 @@ class ss_logrhythm::kinesis (
     group   => root,
     mode    => '0644',
     notify  => Service['rsyslog'],
-  }
-
-  # Test for any java installation - true is java NOT installed
-  exec {'kinesis-java-install-test':
-    command     => true,
-    refreshonly => true,
-    onlyif      => '! type -p java',
-    path        => [
-      '/bin',
-      '/sbin',
-      '/usr/bin',
-      '/usr/sbin',
-    ],
-  }
-
-  package {'default-jre-headless':
-    ensure  => present,
-    require => Exec['kinesis-java-install-test'],
   }
 
   # install Kinesis from .deb - package name is the last part dof agent URL
