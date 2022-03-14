@@ -1,12 +1,26 @@
 # Setup LogRhythm client
 # Client forwards rsyslog logs to agent server
 class ss_logrhythm::kinesis (
-  Boolean                                   $enabled = true, # Enable client config by default
   Variant[Stdlib::HTTPSUrl,Stdlib::HttpUrl] $package_url,    # eg. https://s3-ap-southeast-2.amazonaws.com/ss-packages/logrhythm/aws-kinesis-agent_0.9-Ubuntu_amd64.deb
+  Boolean                                   $enabled = true, # Enable client config by default
 ) inherits ss_logrhythm {
+
   require java
 
   # Set up rsyslog configuration
+  file { '/var/log/kinesis':
+    ensure => 'directory',
+    owner  => 'syslog',
+    group  => 'adm',
+    mode   => '0755',
+  }-> file { '/etc/logrotate.d/aws-kinesis.conf':
+    ensure  => present,
+    content => template('ss_logrhythm/rsyslogd_client.conf.erb'),
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+  }
+
   class {'ss_logrhythm::client':
     agent_ip         => '127.0.0.1', # Dummy Agent IP
     rsyslog_delivery => "    *.* /var/log/kinesis/logrhythm.log\n    \$FileCreateMode 0644"
@@ -27,9 +41,10 @@ class ss_logrhythm::kinesis (
     provider => dpkg,
     source   => "/usr/src/${kinesis_package}"
   }
-  
+
   service {'aws-kinesis-agent':
-    ensure    => running,
-    enable    => true
+    ensure => running,
+    enable => true
   }
+
 }
