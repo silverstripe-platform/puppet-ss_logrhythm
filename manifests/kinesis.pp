@@ -7,6 +7,20 @@ class ss_logrhythm::kinesis (
 
   require java
 
+  # Ubuntu resets permissions/access to /var/run folders on reboot.
+  # So we use a custom directory for storing agent checkpoint data
+  file { '/opt/aws-kinesis-agent':
+    ensure => 'directory',
+    owner => 'aws-kinesis-agent-user',
+    group => 'aws-kinesis-agent-user',
+    mode  => '0644',
+  }-> file { '/opt/aws-kinesis-agent/run':
+    ensure => 'directory',
+    owner => 'aws-kinesis-agent-user',
+    group => 'aws-kinesis-agent-user',
+    mode  => '0644',
+  }
+
   # Set up rsyslog configuration
   file { '/var/log/kinesis':
     ensure => 'directory',
