@@ -5,6 +5,7 @@ class ss_logrhythm::vector (
   Integer $agent_port = 6514, # Port used to pass Syslog data to Vector agent
 ) inherits ss_logrhythm {
 
+  # Add Vector.dev apt source for installing Vector package
   apt::source { 'vector':
     comment  => 'Mirror for Vector.dev package',
     location    => 'https://repositories.timber.io/public/vector/deb/ubuntu',
@@ -17,6 +18,11 @@ class ss_logrhythm::vector (
       'id' => 'C80FB028A4612B1A0EAE214AC96886944BD55D79',
       'source' => 'https://repositories.timber.io/public/vector/gpg.3543DB2D0A2BC4B8.key',
     },
+  }
+
+  # Install Vector package
+  package { 'vector': 
+    ensure => 'present',
   }
 
   Class['apt::update'] -> Package['vector']
