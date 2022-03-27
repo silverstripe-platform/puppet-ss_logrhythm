@@ -15,7 +15,7 @@ class ss_logrhythm::vector (
       Package['apt-transport-https', 'ca-certificates']
     ],
     key         => {
-      'id' => 'C80FB028A4612B1A0EAE214AC96886944BD55D79',
+      'id' => '1E46C153E9EFA24018C36F753543DB2D0A2BC4B8',
       'source' => 'https://repositories.timber.io/public/vector/gpg.3543DB2D0A2BC4B8.key',
     },
   }
