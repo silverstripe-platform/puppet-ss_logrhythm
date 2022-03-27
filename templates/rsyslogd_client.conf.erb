@@ -11,12 +11,12 @@
 
 # All emerg, alert, crit
 if ($syslogseverity == '0' or $syslogseverity == '1' or $syslogseverity == '2') then {
-    <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+    @<%= @agent_ip %>:<%= @agent_port %>
 }
 
 # Apache logs
 else if ($programname == 'apache') then {
-    <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+    @<%= @agent_ip %>:<%= @agent_port %>
 }
 
 # Auth/Authpriv
@@ -28,19 +28,19 @@ else if ($syslogfacility == '4' or $syslogfacility == '10') then {
         } else if ($rawmsg contains 'SELECT') then {
             continue
         } else {
-            <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+            @<%= @agent_ip %>:<%= @agent_port %>
         }
     } else if ($programname == 'CRON') then {
         continue
     }
     else {
-        <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+        @<%= @agent_ip %>:<%= @agent_port %>
     }
 }
 
 # All kernel messages
 else if ($syslogfacility == '0') then {
-    <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+    @<%= @agent_ip %>:<%= @agent_port %>
 }
 
 # Auditd logging USER events
@@ -50,9 +50,9 @@ else if ($programname == 'audit') then {
     if ($rawmsg contains '76656E646F722F62696E2F73616B65206465762F7461736B732F50726F636573734A6F6251756575655461736B') then {
         continue
     } else if ($rawmsg contains 'type=USER_') then {
-        <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+        @<%= @agent_ip %>:<%= @agent_port %>
     } else if ($rawmsg contains 'type=PATH' and ($rawmsg contains '/etc/passwd' or $rawmsg contains '/etc/shadow')) then {
-        <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+        @<%= @agent_ip %>:<%= @agent_port %>
     }
 }
 
@@ -71,11 +71,11 @@ else if ($programname == 'CRON') then {
     } else if ($rawmsg contains '/usr/local/bin/queuedjobs.sh') then {
         continue
     } else {
-        <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+        @<%= @agent_ip %>:<%= @agent_port %>
     }
 }
 
 # Mail logs
 else if ($syslogfacility-text == 'mail') then {
-    <%= @<%= @agent_ip %>:<%= @agent_port %> %>
+    @<%= @agent_ip %>:<%= @agent_port %>
 }
