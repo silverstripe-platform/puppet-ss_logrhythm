@@ -12,7 +12,7 @@ class ss_logrhythm::vector (
     release     => $::lsbdistcodename,
     repos       => 'main',
     require     => [
-      Package['apt-transport-https', 'ca-certificates', 'gnupg']
+      Package['apt-transport-https', 'ca-certificates']
     ],
     key         => {
       'id' => 'C80FB028A4612B1A0EAE214AC96886944BD55D79',
