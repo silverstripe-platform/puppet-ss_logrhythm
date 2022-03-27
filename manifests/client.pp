@@ -4,7 +4,6 @@ class ss_logrhythm::client (
   Stdlib::Compat::Ip_address  $agent_ip,          # Platform agent server ip to forward syslog messages to
   Integer                     $agent_port = 514,  # Platform agent server port to forward syslog messages to
   Boolean                     $enabled = true,     # Enable client config by default
-  String                      $rsyslog_delivery = "@${agent_ip}:${agent_port}",
 ) inherits ss_logrhythm {
   if $enabled == true {
     $logrhythm_agent_ensure = present

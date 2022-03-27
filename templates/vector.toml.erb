@@ -1,0 +1,13 @@
+[sources.syslog]
+type = "syslog"
+address = "0.0.0.0:<%= @agent_port %>"
+mode = "udp"
+
+[sinks.kinesis]
+type = "aws_kinesis_streams"
+inputs = [ "syslog" ]
+compression = "none"
+region = "ap-southeast-2"
+stream_name = "${STREAM_NAME}"
+auth.assume_role = "${ROLE_ARN}"
+encoding.codec = "ndjson"
