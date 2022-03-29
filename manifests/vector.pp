@@ -1,8 +1,9 @@
 # Setup LogRhythm client
 # Client forwards rsyslog logs to agent server
 class ss_logrhythm::vector (
-  Boolean $enabled = true, # Enable client config by default
-  Integer $agent_port = 6514, # Port used to pass Syslog data to Vector agent
+  Stdlib::Compat::Ip_address $listen_ip   = '127.0.0.1', # IP Address of agent to listen
+  Integer                    $listen_port = 6514,      # Port used to pass Syslog data to Vector agent
+  String                     $listen_mode = 'udp',     # Mode used to listen (tcp,udp)
 ) inherits ss_logrhythm {
 
   # Add Vector.dev apt source for installing Vector package
@@ -26,12 +27,6 @@ class ss_logrhythm::vector (
   }
 
   Class['apt::update'] -> Package['vector']
-
-  # Send Syslog data to Vector agent
-  class {'ss_logrhythm::client':
-    agent_ip   => '127.0.0.1',
-    agent_port => $agent_port
-  }
 
   # Configure Vector with default settings
   # Expects Role/Stream to be provided via environment variables
