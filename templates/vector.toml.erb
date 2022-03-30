@@ -3,9 +3,17 @@ type = "syslog"
 address = "<%= @listen_ip %>:<%= @listen_port %>"
 mode = "<%= @listen_mode %>"
 
+[transforms.modify_syslog]
+type = "remap"
+inputs = ["syslog"]
+source = '''
+  .host = "${HOSTNAME}"
+  .hostname = "${HOSTNAME}"
+'''
+
 [sinks.kinesis]
 type = "aws_kinesis_streams"
-inputs = [ "syslog" ]
+inputs = [ "modify_syslog" ]
 compression = "none"
 region = "${REGION}"
 stream_name = "${STREAM_NAME}"
