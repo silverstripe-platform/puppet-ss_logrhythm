@@ -23,7 +23,7 @@ class ss_logrhythm::vector (
 
   # Install Vector package
   package { 'vector': 
-    ensure => 'present',
+    ensure => '0.20.0',
   }
 
   Class['apt::update'] -> Package['vector']
