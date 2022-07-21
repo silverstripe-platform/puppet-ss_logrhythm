@@ -1,9 +1,10 @@
 # Setup LogRhythm client
 # Client forwards rsyslog logs to agent server
 class ss_logrhythm::vector (
-  Stdlib::Compat::Ip_address $listen_ip   = '0.0.0.0', # IP Address of agent to listen
-  Integer                    $listen_port = 6514,      # Port used to pass Syslog data to Vector agent
-  String                     $listen_mode = 'udp',     # Mode used to listen (tcp,udp)
+  Stdlib::Compat::Ip_address $listen_ip   = '0.0.0.0',                        # IP Address of agent to listen
+  Integer                    $listen_port = 6514,                             # Port used to pass Syslog data to Vector agent
+  String                     $listen_mode = 'udp',                            # Mode used to listen (tcp,udp)
+  String                     $template    = 'ss_logrhythm/vector.toml.erb',   # vector.toml template
 ) inherits ss_logrhythm {
 
   # Add Vector.dev apt source for installing Vector package
@@ -36,7 +37,7 @@ class ss_logrhythm::vector (
   #  - HOSTNAME
   file { '/etc/vector/vector.toml':
     ensure  => 'present',
-    content => template('ss_logrhythm/vector.toml.erb'),
+    content => template($template),
     owner   => root,
     group   => root,
     mode    => '0644',
