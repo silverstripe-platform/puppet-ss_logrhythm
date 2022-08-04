@@ -21,11 +21,6 @@ class ss_logrhythm::vector (
     },
   }
 
-  # Install Vector package
-  package { 'vector': 
-    ensure => '0.20.0',
-  }
-
   Class['apt::update'] -> Package['vector']
 
   # Configure Vector with default settings
@@ -34,12 +29,22 @@ class ss_logrhythm::vector (
   #  - ROLE_ARN
   #  - REGION
   #  - HOSTNAME
-  file { '/etc/vector/vector.toml':
+  # Note: create the conf file before, because otherwise "humorous" default messages are produced
+  file { '/etc/vector':
+    ensure  => 'directory',
+    owner   => root,
+    group   => root,
+    mode    => '0755',
+  }
+  -> file { '/etc/vector/vector.toml':
     ensure  => 'present',
     content => template('ss_logrhythm/vector.toml.erb'),
     owner   => root,
     group   => root,
     mode    => '0644',
-    require => Package['vector'],
   }
+  -> package { 'vector':
+    ensure => '0.20.0',
+  }
+
 }
