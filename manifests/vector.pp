@@ -9,14 +9,14 @@ class ss_logrhythm::vector (
   # Add Vector.dev apt source for installing Vector package
   apt::source { 'vector':
     comment  => 'Mirror for Vector.dev package',
-    location    => 'https://repositories.timber.io/public/vector/deb/ubuntu',
-    release     => $::lsbdistcodename,
-    repos       => 'main',
-    require     => [
+    location => 'https://repositories.timber.io/public/vector/deb/ubuntu',
+    release  => $::lsbdistcodename,
+    repos    => 'main',
+    require  => [
       Package['apt-transport-https', 'ca-certificates']
     ],
-    key         => {
-      'id' => '1E46C153E9EFA24018C36F753543DB2D0A2BC4B8',
+    key      => {
+      'id'     => '1E46C153E9EFA24018C36F753543DB2D0A2BC4B8',
       'source' => 'https://repositories.timber.io/public/vector/gpg.3543DB2D0A2BC4B8.key',
     },
   }
@@ -31,10 +31,10 @@ class ss_logrhythm::vector (
   #  - HOSTNAME
   # Note: create the conf file before, because otherwise "humorous" default messages are produced
   file { '/etc/vector':
-    ensure  => 'directory',
-    owner   => root,
-    group   => root,
-    mode    => '0755',
+    ensure => 'directory',
+    owner  => root,
+    group  => root,
+    mode   => '0755',
   }
   -> file { '/etc/vector/vector.toml':
     ensure  => 'present',
@@ -43,8 +43,5 @@ class ss_logrhythm::vector (
     group   => root,
     mode    => '0644',
   }
-  -> package { 'vector':
-    ensure => '0.20.0',
-  }
-
+  -> package { 'vector': }
 }
