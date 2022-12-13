@@ -9,6 +9,7 @@ inputs = ["syslog"]
 source = '''
   .host = "${HOSTNAME}"
   .hostname = "${HOSTNAME}"
+  .message = encode_json(.) + "\n"
 '''
 
 [sinks.kinesis]
@@ -18,4 +19,4 @@ compression = "none"
 region = "${REGION}"
 stream_name = "${STREAM_NAME}"
 auth.assume_role = "${ROLE_ARN}"
-encoding.codec = "ndjson"
+encoding.codec = "text"
